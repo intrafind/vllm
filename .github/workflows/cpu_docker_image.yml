@@ -59,4 +59,4 @@ jobs:
           platforms: linux/amd64
           push: ${{ github.event.inputs.push_image }}
           tags: |
-            ${{ env.DESTINATION }}:${{ env.image_tag }}
+            ${{ env.DESTINATION }}:${{ env.git_tag }}
