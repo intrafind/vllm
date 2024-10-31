@@ -29,14 +29,14 @@ jobs:
       - name: Set image tag
         run: |
           if [ -z "${{ github.event.inputs.image_tag }}" ]; then
-            echo "image_tag=${{ github.event.inputs.image_tag }}" >> $GITHUB_ENV
+            echo "image_tag=${{ github.event.inputs.image_tag }}" >> "$GITHUB_ENV"
           else
-            echo "image_tag=${{ env.VLLM_VERSION }}" >> $GITHUB_ENV
+            echo "image_tag=${{ env.VLLM_VERSION }}" >> "$GITHUB_ENV"
           fi
 
       - name: Define image destination
         run: |
-          echo "DESTINATION=${{ vars.IF_REGISTRY }}/${{ github.ref == 'refs/tags/*' && 'intrafind' || 'dev' }}/vllm-openai-cpu" >> $GITHUB_ENV
+          echo "DESTINATION=${{ vars.IF_REGISTRY }}/${{ github.ref == 'refs/tags/*' && 'intrafind' || 'dev' }}/vllm-openai-cpu" >> "$GITHUB_ENV"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
