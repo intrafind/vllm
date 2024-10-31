@@ -28,7 +28,7 @@ jobs:
 
       - name: Set image tag
         run: |
-          if [ -z "${{ github.event.inputs.image_tag }}" ]; then
+          if [ -n "${{ github.event.inputs.image_tag }}" ]; then
             echo "image_tag=${{ github.event.inputs.image_tag }}" >> "$GITHUB_ENV"
           else
             echo "image_tag=${{ env.VLLM_VERSION }}" >> "$GITHUB_ENV"
