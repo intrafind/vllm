@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v4.2.0
         with:
           persist-credentials: false
-          ref: ${{ github.event.inputs.git_tag || 'main' }}  # Checkout the specified git tag or default to main if not provided
+          ref: ${{ github.event.inputs.git_tag || 'main' }} # Checkout the specified git tag or default to main if not provided
 
       - name: Set image tag
         run: |
@@ -39,7 +39,7 @@ jobs:
 
       - name: Define image destination
         run: |
-          echo "DESTINATION=${{ vars.IF_REGISTRY }}/${{ github.ref == 'refs/tags/*' && github.event.inputs.push_image_to_intrafind_project == 'true' ? 'intrafind' : 'dev' }}/vllm-openai-cpu" >> "$GITHUB_ENV"
+          echo "DESTINATION=${{ vars.IF_REGISTRY }}/${{ github.ref == 'refs/tags/*' && github.event.inputs.push_image_to_intrafind_project == 'true' && 'intrafind' || 'dev' }}/vllm-openai-cpu" >> "$GITHUB_ENV"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
