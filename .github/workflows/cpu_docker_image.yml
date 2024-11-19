@@ -18,7 +18,7 @@ jobs:
     permissions:
       contents: write
     env:
-      VLLM_VERSION: 0.6.3.post1
+      VLLM_VERSION: 0.6.4.post1
 
     steps:
       - name: Checkout Code
