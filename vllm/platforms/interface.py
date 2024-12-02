@@ -56,6 +56,13 @@ class DeviceCapability(NamedTuple):
 
 class Platform:
     _enum: PlatformEnum
+    device_name: str
+    device_type: str
+    # available dispatch keys:
+    # check https://github.com/pytorch/pytorch/blob/313dac6c1ca0fa0cde32477509cce32089f8532a/torchgen/model.py#L134 # noqa
+    # use "CPU" as a fallback for platforms not registered in PyTorch
+    dispatch_key: str = "CPU"
+    supported_quantization: list[str] = []
 
     def is_cuda(self) -> bool:
         return self._enum == PlatformEnum.CUDA
@@ -166,6 +173,18 @@ class Platform:
         """
         pass
 
+    @classmethod
+    def verify_quantization(cls, quant: str) -> None:
+        """
+        Verify whether the quantization is supported by the current platform.
+        """
+        if cls.supported_quantization and \
+            quant not in cls.supported_quantization:
+            raise ValueError(
+                f"{quant} quantization is currently not supported in "
+                f"{cls.device_name}.")
+
 
 class UnspecifiedPlatform(Platform):
     _enum = PlatformEnum.UNSPECIFIED
+    device_type = ""
