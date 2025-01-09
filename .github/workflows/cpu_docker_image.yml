@@ -3,40 +3,43 @@ name: Build and push Docker image of vLLM for CPU inference
 on:
   workflow_dispatch:
     inputs:
-      image_tag:
-        description: "Tag for the Docker image"
+      git_tag:
+        description: "Git tag for the code to build"
         required: false
         default: ""
       push_image:
         description: "Push the image to the registry"
         required: false
         default: "true"
+      push_image_to_intrafind_project:
+        description: "Push the image to the intrafind project"
+        required: false
+        default: "false"
 
 jobs:
   build-and-push:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
-    env:
-      VLLM_VERSION: 0.6.4.post1
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4.2.0
         with:
           persist-credentials: false
+          ref: ${{ github.event.inputs.git_tag || 'main' }} # Checkout the specified git tag or default to main if not provided
 
       - name: Set image tag
         run: |
-          if [ -z "${{ github.event.inputs.image_tag }}" ]; then
-            echo "image_tag=${{ github.event.inputs.image_tag }}" >> "$GITHUB_ENV"
+          if [ "${{ github.event.inputs.git_tag }}" == "main" ]; then
+            echo "image_tag=latest" >> "$GITHUB_ENV"
           else
-            echo "image_tag=${{ env.VLLM_VERSION }}" >> "$GITHUB_ENV"
+            echo "image_tag=${{ github.event.inputs.git_tag }}" >> "$GITHUB_ENV"
           fi
 
       - name: Define image destination
         run: |
-          echo "DESTINATION=${{ vars.IF_REGISTRY }}/${{ github.ref == 'refs/tags/*' && 'intrafind' || 'dev' }}/vllm-openai-cpu" >> "$GITHUB_ENV"
+          echo "DESTINATION=${{ vars.IF_REGISTRY }}/${{ github.ref == 'refs/tags/*' && github.event.inputs.push_image_to_intrafind_project == 'true' && 'intrafind' || 'dev' }}/vllm-openai-cpu" >> "$GITHUB_ENV"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -56,4 +59,4 @@ jobs:
           platforms: linux/amd64
           push: ${{ github.event.inputs.push_image }}
           tags: |
-            ${{ env.DESTINATION }}:${{ env.image_tag }}
+            ${{ env.DESTINATION }}:${{ env.git_tag }}
